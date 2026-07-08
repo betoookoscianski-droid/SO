@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOA - Sistema Operacional Alberto</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .nav-link { transition: all 0.3s; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url('Ak.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-72 bg-zinc-900 flex flex-col">
+            <div class="p-6 border-b border-zinc-800">
+                <h1 class="text-3xl font-bold">SOA Alberto</h1>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="#" onclick="navigateTo('dashboard')" class="nav-link block px-4 py-3 rounded-xl bg-zinc-800">🏠 Dashboard</a>
+                <a href="#" onclick="navigateTo('estudos')" class="nav-link block px-4 py-3 rounded-xl hover:bg-zinc-800">🎓 Estudos</a>
+                <a href="#" onclick="navigateTo('planejamento')" class="nav-link block px-4 py-3 rounded-xl hover:bg-zinc-800">📅 Planejamento</a>
+                <a href="#" onclick="navigateTo('conselheiro')" class="nav-link block px-4 py-3 rounded-xl hover:bg-zinc-800">🤖 Conselheiro</a>
+                <a href="#" onclick="navigateTo('acalmar')" class="nav-link block px-4 py-3 rounded-xl hover:bg-zinc-800">🧘 Acalmar</a>
+            </nav>
+        </div>
+
+        <div class="flex-1 overflow-auto">
+            <header class="hero-bg h-80 relative flex items-end">
+                <div class="p-8 text-white">
+                    <h1 class="text-5xl font-bold">Alberto</h1>
+                    <p class="text-xl">"Não preciso controlar tudo para viver bem."</p>
+                </div>
+            </header>
+
+            <div class="p-8 max-w-4xl mx-auto">
+                <!-- Dashboard -->
+                <div id="dashboard" class="section active">
+                    <h2 class="text-3xl font-bold">Bem-vindo ao seu Sistema</h2>
+                    <p>Use o menu lateral para navegar.</p>
+                </div>
+
+                <!-- Estudos -->
+                <div id="estudos" class="section">
+                    <h2 class="text-3xl font-bold mb-6">Estudos para Concursos</h2>
+                    <button onclick="startPomodoro()" class="px-8 py-4 bg-blue-600 rounded-2xl text-white">Iniciar Pomodoro 25min</button>
+                </div>
+
+                <!-- Outras seções -->
+                <div id="planejamento" class="section">Planejamento Diário</div>
+                <div id="conselheiro" class="section">Conselheiro Alberto</div>
+                <div id="acalmar" class="section">Exercício de Respiração</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+        }
+        function startPomodoro() {
+            alert("Pomodoro iniciado! Foque por 25 minutos.");
+        }
+        window.onload = () => {
+            document.getElementById('dashboard').classList.add('active');
+        };
+    </script>
+</body>
+</html>
