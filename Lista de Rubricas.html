@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta Completa de Rubricas - Pensões</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
+    .container { max-width: 1400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #1e3a8a; }
+    .search { width: 100%; padding: 14px; font-size: 17px; border: 2px solid #1e40af; border-radius: 8px; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; text-align: left; border: 1px solid #ccc; }
+    th { background: #1e3a8a; color: white; position: sticky; top: 0; }
+    .codigo { font-weight: bold; color: #1e40af; }
+    tr:hover { background-color: #e0f2fe; }
+    .incide { background-color: #86efac; text-align: center; font-weight: bold; }
+    .nao { background-color: #f3f4f6; text-align: center; }
+    .filter { margin: 10px 0; text-align: center; }
+    button { padding: 8px 16px; margin: 4px; border: none; border-radius: 6px; cursor: pointer; background: #1e40af; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Consulta Completa de Rubricas de Pensão</h1>
+    <input type="text" id="search" class="search" placeholder="Busque por código ou descrição...">
+
+    <div class="filter">
+      <button onclick="filterAll()">Todas</button>
+      <button onclick="filterPrefix('05')">Rubricas 05-</button>
+      <button onclick="filterPrefix('06')">Rubricas 06- (Diferenças)</button>
+    </div>
+
+    <table id="tabela">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descrição Original</th>
+          <th>Tradução / Significado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const rubricas = [
+      {codigo: "05-0036", original: "PENSAO SUBSIDIO - IPREV-IR", significado: "Pensão – Subsídio (IPREV/IR)"},
+      {codigo: "05-0304", original: "PENSAO RENDIMENTOS + INDENIZACOES", significado: "Pensão – Rendimentos + Indenizações"},
+      {codigo: "05-0540", original: "A B E P O M", significado: "Associação/benefício ABEPOM"},
+      {codigo: "05-0570", original: "PENSAO SUBSIDIO", significado: "Pensão – Subsídio"},
+      {codigo: "05-0571", original: "PENSAO RENDIMENTO", significado: "Pensão – Rendimentos"},
+      {codigo: "05-0572", original: "PENSAO REMUNERACAO (1)", significado: "Pensão – Remuneração (1)"},
+      {codigo: "05-0573", original: "PENSAO REMUNERACAO (2)", significado: "Pensão – Remuneração (2)"},
+      {codigo: "05-0575", original: "PENSAO REMUN PARCIAL", significado: "Pensão – Remuneração Parcial"},
+      {codigo: "05-0577", original: "PENSAO REND 2", significado: "Pensão – Rendimentos 2"},
+      {codigo: "05-0586", original: "PENSAO REND PARCIAL", significado: "Pensão – Rendimentos Parciais"},
+      {codigo: "05-0637", original: "PENSAO ALIMENTICIA SUBSIDIO", significado: "Pensão Alimentícia – Subsídio"},
+      {codigo: "05-0686", original: "PENSAO REMUNERACAO", significado: "Pensão – Remuneração"},
+      {codigo: "05-0693", original: "PENSAO-REMU-5571-IP", significado: "Pensão – Remuneração vinculada ao código 5571"},
+      {codigo: "05-0752", original: "PENSAO-REMU-5572", significado: "Pensão – Remuneração vinculada ao código 5572"},
+      {codigo: "05-0753", original: "RENDIMENTOS-1056", significado: "Rendimentos – código 1056"},
+      {codigo: "05-0754", original: "PENSAO ALIMENTICIA %", significado: "Pensão Alimentícia – Percentual"},
+      {codigo: "05-0755", original: "PENSAO REM + FERIAS", significado: "Pensão – Remuneração + Férias"},
+      {codigo: "05-0775", original: "PENSAO REND INATIVO", significado: "Pensão – Remuneração + Férias"},
+      {codigo: "05-0776", original: "PENSAO RENDIM - PLAN", significado: "Pensão – Rendimentos (Plano)"},
+      {codigo: "05-0777", original: "PENSAO REND-2", significado: "Pensão – Rendimentos 2"},
+      {codigo: "05-0778", original: "PENSAO REMUN - PLAN", significado: "Pensão – Remuneração (Plano)"},
+      {codigo: "05-0780", original: "PENSAO SUBSIDIO EXCLUSIVA DE 13 SALARIO", significado: "Pensão – Subsídio exclusivo de 13º salário"},
+      {codigo: "05-0790", original: "PENSAO (VENC+INDENI)", significado: "Pensão – Vencimentos + Indenizações"},
+      {codigo: "05-0856", original: "PENSAO REM-LIQUIDA", significado: "Pensão – Remuneração Líquida"},
+      {codigo: "05-0858", original: "PEN-SCSAUDE-ABEPOM", significado: "Pensão – SC Saúde / ABEPOM"},
+      {codigo: "05-0859", original: "PENSAO SOLDO E ATS", significado: "Pensão – Soldo e ATS"},
+      {codigo: "05-0860", original: "PENSAO REND-PL-5770", significado: "Pensão – Rendimentos plano 5770"},
+      {codigo: "05-0867", original: "PENSAO RENDIM - SCSAU", significado: "Pensão – Rendimentos SC Saúde"},
+      {codigo: "05-0868", original: "PENSAO REM-SCSAUDE", significado: "Pensão – Remuneração SC Saúde"},
+      {codigo: "05-0869", original: "PENSAO ALIMENTICIA % (8)", significado: "Pensão Alimentícia – Percentual (8)"},
+      {codigo: "05-0870", original: "PENSAO VENCIMENTO", significado: "Pensão – Vencimentos"},
+      {codigo: "05-0871", original: "PENSAO REM-1033 1108", significado: "Pensão – Remuneração códigos 1033/1108"},
+      {codigo: "05-0873", original: "PENSAO %", significado: "Pensão – Percentual"},
+      {codigo: "05-0874", original: "PENSAO-REM-IPESC", significado: "Pensão – Remuneração IPESC"},
+      {codigo: "05-0922", original: "PENSAO ALIMENTICIA 01-0001-01-0445", significado: "Pensão Alimentícia – referência/código 01-0001-01-0445"},
+      {codigo: "05-0931", original: "PENSAO % S/13FERIAS", significado: "Pensão – Percentual sobre 13º e férias"},
+      {codigo: "05-0947", original: "PENSAO ALIMENTICIA", significado: "Pensão Alimentícia"},
+      {codigo: "05-0770", original: "PENSAO SOLDO E ATS", significado: "Pensão – Soldo e ATS"},
+      {codigo: "05-1053", original: "", significado: ""},
+      {codigo: "05-1137", original: "PENSAO SUBSIDIO -IPREV-IR-PS-CONSIG", significado: "Desconto de pensão sobre subsídio com incidências de IPREV, IR e consignações"},
+      {codigo: "05-1587", original: "PENSAO ALIMENTOS RENDIMENTO PARCIAL", significado: "Pensão sobre parte dos rendimentos"},
+      {codigo: "05-5570", original: "PENSAO ALIM REND - IR - IPRE - ABEPOM", significado: "Pensão incidindo sobre rendimento líquido após IR/IPREV/ABEPOM"},
+      {codigo: "05-5578", original: "PENSAO SOBRE 13 SALARIO E 1/3 FERIAS", significado: "Pensão aplicada ao 13º e adicional de férias"},
+      {codigo: "05-6644", original: "PENSAO SALARIO -PLANO DE SAUDE-IR", significado: "Pensão após desconto de plano de saúde e IR"},
+      {codigo: "06-0573", original: "DIF.DESCONTOPENSAO REMUNERACAO (2)", significado: "Ajuste/diferença de desconto de pensão sobre remuneração"},
+      {codigo: "06-0686", original: "DIF.DESCONTOPENSAO REMUNERACAO", significado: "Diferença de desconto da pensão na remuneração"},
+      {codigo: "06-0752", original: "DIF.DESCONTOPENSAO-REMU-5572", significado: "Ajuste vinculado à rubrica 5572"},
+      {codigo: "06-0753", original: "DIF.DESCONTORRENDIMENTOS-1056", significado: "Diferença de desconto sobre rendimentos"},
+      {codigo: "06-0755", original: "DIF.DESCONTOPENSAO REM + FERIAS", significado: "Diferença de pensão sobre remuneração + férias"},
+      {codigo: "06-0770", original: "DIF.DESCONTOPENSAO SOLDO E ATS", significado: "Diferença de pensão sobre soldo e ATS"},
+      {codigo: "06-0776", original: "DIF.DESCONTOPENSAO RENDIM - PLAN", significado: "Diferença de desconto sobre rendimento/plano"},
+      {codigo: "06-0778", original: "DIF.DESCONTOPENSAO REMUN - PLAN", significado: "Diferença de desconto sobre remuneração/plano"},
+      {codigo: "06-0856", original: "DIF.DESCONTOPENSAO REM-LIQUIDA", significado: "Ajuste de pensão sobre remuneração líquida"},
+      {codigo: "06-0870", original: "DIF.DESCONTOPENSAO VENCIMENTO", significado: "Diferença de desconto sobre vencimento"},
+      {codigo: "06-0873", original: "DIF.DESCONTOPENSAO %", significado: "Ajuste percentual da pensão"},
+      {codigo: "06-0874", original: "DIF.DESCONTOPENSAO-REM-IPESC", significado: "Diferença de pensão vinculada ao IPESC/IPREV"},
+      {codigo: "06-0922", original: "DIF.DESCONTOPENSA AL 01-0001+01-0445", significado: "Ajuste da pensão alimentícia sobre combinação de bases/rubricas"},
+      {codigo: "06-0948", original: "DIF.DESCONTOPENSAO AL BASE IPREV", significado: "Ajuste da pensão considerando base previdenciária IPREV"}
+    ];
+
+    const tbody = document.querySelector('#tabela tbody');
+    const searchInput = document.getElementById('search');
+
+    function renderTable(data) {
+      tbody.innerHTML = '';
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="codigo">${item.codigo}</td>
+          <td>${item.original}</td>
+          <td><strong>${item.significado}</strong></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value.toLowerCase().trim();
+      const filtered = rubricas.filter(item =>
+        item.codigo.toLowerCase().includes(term) ||
+        item.original.toLowerCase().includes(term) ||
+        item.significado.toLowerCase().includes(term)
+      );
+      renderTable(filtered);
+    });
+
+    function filterPrefix(prefix) {
+      const filtered = prefix ? rubricas.filter(r => r.codigo.startsWith(prefix)) : rubricas;
+      renderTable(filtered);
+    }
+
+    function filterAll() {
+      renderTable(rubricas);
+    }
+
+    // Inicializa
+    renderTable(rubricas);
+  </script>
+</body>
+</html>
