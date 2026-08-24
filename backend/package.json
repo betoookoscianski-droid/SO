@@ -1,0 +1,18 @@
+{
+  "name": "integrador-sigrh-pgenet",
+  "version": "1.0.0",
+  "description": "Backend do Integrador SIGRH + PGENet",
+  "type": "module",
+  "main": "server-funcionando.js",
+  "scripts": {
+    "start": "node server-funcionando.js",
+    "dev": "node server-funcionando.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.1.0",
+    "helmet": "^7.1.0"
+  }
+}
